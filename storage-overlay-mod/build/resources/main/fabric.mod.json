@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "storageoverlay",
+  "version": "1.0.0",
+  "name": "Storage Overlay",
+  "description": "Displays a visual overlay of all your Hypixel SkyBlock storage pages in one screen.",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "net.storageoverlay.StorageOverlayMod"
+    ]
+  },
+  "mixins": [
+    "storageoverlay.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "fabric-api": "*",
+    "minecraft": "~26.1.2",
+    "java": ">=25"
+  }
+}

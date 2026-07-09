@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.inventory.Slot;
@@ -18,10 +19,15 @@ import java.util.List;
 
 public class StorageOverlayHandler {
 
+    // PORT-VERIFY: 26.2 consolidated per-color item variants (dyes, stained glass panes, etc.)
+    // into ColorCollection fields (e.g. Items.DYE, picked via .pick(DyeColor.X)) instead of flat
+    // constants like the old Items.GRAY_DYE. Field names "STAINED_GLASS_PANE" and "DYE" are a
+    // reasonable-confidence guess based on the documented Items.DYE example — confirm the exact
+    // field name if this doesn't compile.
     private static final List<Item> EMPTY_SLOT_ITEMS = List.of(
-            Items.RED_STAINED_GLASS_PANE,
-            Items.BROWN_STAINED_GLASS_PANE,
-            Items.GRAY_DYE
+            Items.STAINED_GLASS_PANE.pick(DyeColor.RED),
+            Items.STAINED_GLASS_PANE.pick(DyeColor.BROWN),
+            Items.DYE.pick(DyeColor.GRAY)
     );
 
     private static StorageBackingHandle currentHandle = null;
@@ -58,10 +64,8 @@ public class StorageOverlayHandler {
                     // Null currentScreen first so setScreen() skips calling gcs.onClose() —
                     // without this, gcs.onClose() sends ServerboundContainerClosePacket and the
                     // server closes the container (syncId mismatch on all future clicks).
-                    // Pre-26.2: this field is private directly on Minecraft (it only moved to the
-                    // new Gui class in 26.2), so we go through the accessor mixin to null it.
-                    ((net.storageoverlay.mixin.MinecraftScreenMixin)(Object) client).setCurrentScreen(null);
-                    client.setScreen(overlay);
+                    ((net.storageoverlay.mixin.GuiMixin)(Object) client.gui).setCurrentScreen(null);
+                    client.gui.setScreen(overlay);
                     org.lwjgl.glfw.GLFW.glfwSetCursorPos(client.getWindow().handle(), mx[0], my[0]);
                 });
             }
@@ -70,7 +74,7 @@ public class StorageOverlayHandler {
                     ? pendingOverview
                     : (StorageConfig.get().alwaysReplace ? new StorageOverviewScreen(client, null, null) : null);
             if (overview != null) {
-                Screen current = ((net.storageoverlay.mixin.MinecraftScreenMixin)(Object) client).getCurrentScreen();
+                Screen current = client.gui.screen();
                 if (current instanceof StoragePageOverlayScreen existing) {
                     existing.updateHandle(gcs, page);
                 } else {
@@ -81,10 +85,8 @@ public class StorageOverlayHandler {
                         // Null currentScreen first so setScreen() skips calling gcs.onClose() —
                         // without this, gcs.onClose() sends ServerboundContainerClosePacket and the
                         // server closes the container (syncId mismatch on all future clicks).
-                        // Pre-26.2: this field is private directly on Minecraft (it only moved to
-                        // the new Gui class in 26.2), so we go through the accessor mixin to null it.
-                        ((net.storageoverlay.mixin.MinecraftScreenMixin)(Object) client).setCurrentScreen(null);
-                        client.setScreen(pageOverlay);
+                        ((net.storageoverlay.mixin.GuiMixin)(Object) client.gui).setCurrentScreen(null);
+                        client.gui.setScreen(pageOverlay);
                         org.lwjgl.glfw.GLFW.glfwSetCursorPos(client.getWindow().handle(), mx[0], my[0]);
                     });
                 }

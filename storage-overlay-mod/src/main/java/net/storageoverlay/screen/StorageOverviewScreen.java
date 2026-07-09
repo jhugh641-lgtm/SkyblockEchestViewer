@@ -478,10 +478,8 @@ public class StorageOverviewScreen extends Screen {
             // first so setScreen() skips calling this screen's onClose() — without this,
             // onClose() sends ServerboundContainerClosePacket for the shared syncId, and the
             // server closes the container out from under the backing screen we're switching to.
-            // Pre-26.2: this field is private directly on Minecraft (it only moved to the new
-            // Gui class in 26.2), so we go through the accessor mixin to null it.
-            ((net.storageoverlay.mixin.MinecraftScreenMixin)(Object) mc).setCurrentScreen(null);
-            mc.setScreen(backingScreen);
+            ((net.storageoverlay.mixin.GuiMixin)(Object) mc.gui).setCurrentScreen(null);
+            mc.gui.setScreen(backingScreen);
         } else {
             onClose();
         }

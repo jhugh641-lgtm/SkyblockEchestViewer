@@ -6,7 +6,7 @@
   "client": [
     "HandledScreenMixin",
     "SlotMixin",
-    "MinecraftScreenMixin"
+    "GuiMixin"
   ],
   "injectors": {
     "defaultRequire": 1
